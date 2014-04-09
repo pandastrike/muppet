@@ -22,7 +22,7 @@ class DurableChannel:
   def __get_current_time():
     return int(round(time.time() * 1000))
 
-  def __package(content, to, request_id, timeout):
+  def __package(self, content, to, request_id=None, timeout):
     message = {
       "id": str(uuid.uuid4()),
       "requestId": request_id,
@@ -33,7 +33,7 @@ class DurableChannel:
     }
     return message
 
-  def __monitorTimeouts():
+  def __monitorTimeouts(self):
     while True:
       if self.stopping:
         break
@@ -61,7 +61,7 @@ class DurableChannel:
           expiredMessageId
         )
 
-  def send(content, to, timeout):
+  def send(self, content, to, timeout):
     message = self.__package(
       content=content, 
       to=to, 
@@ -82,7 +82,7 @@ class DurableChannel:
       to + "::" + message["id"]
     )
 
-  def receive():
+  def receive(self):
     messageId = self.redis.brpop(
       self.name + ".queue"
     )
@@ -93,7 +93,7 @@ class DurableChannel:
       messageId
     )
 
-    if "requestId" in message:
+    if "requestId" in message and message["requestId"] != None:
       self.redis.zrem(
         self.name + ".pending", 
         message["from"] + "::" + message["requestId"]
@@ -104,7 +104,7 @@ class DurableChannel:
       )
     
     _message = {content: message.content}
-    if "requestId" in message:
+    if "requestId" in message and message["requestId"] != None:
       _message["requestId"] = message["requestId"]
       _message["responseId"] = message["id"]
     else:
@@ -112,11 +112,12 @@ class DurableChannel:
 
     return _message
 
-  def reply(message, response, timeout):
+  def reply(self, message, response, timeout):
     message = self.__package(
       content=response, 
       to=request["from"], 
-      request_id=message["requestId"], timeout=timeout
+      request_id=message["requestId"], 
+      timeout=timeout
     )
     request = self.redis.hget(
       self.name + ".messages", 
@@ -137,11 +138,11 @@ class DurableChannel:
       request["from"] + "::" + message["id"]
     )
 
-  def close(message):
+  def close(self, message):
     self.redis.hdel(
       self.name + ".messages", 
       message["responseId"]
     )
 
-  def end():
+  def end(self):
     self.stopping = True
