@@ -97,15 +97,18 @@ class DurableChannel:
       )
 
   def receive(self):
-    messageId = self.redis.brpop(
-      self.name + ".queue"
-    )
-    messageId = messageId[1]
+    message = None
+    while message == None:
+      messageId = self.redis.brpop(
+        self.name + ".queue"
+      )
+      messageId = messageId[1]
+
+      message = self.redis.hget(
+        self.name + ".messages", 
+        messageId
+      )
     
-    message = self.redis.hget(
-      self.name + ".messages", 
-      messageId
-    )
     message = json.loads(message)
 
     if "requestId" in message and message["requestId"] != None:

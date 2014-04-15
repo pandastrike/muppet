@@ -43,13 +43,3 @@ class TestDurableChannel:
     # receive message
     message = self.worker.receive()
     assert message["content"] == "task"
-    #self.worker.reply(message=message, response="reply")
-
-    # # receive reply
-    # reply = self.dispatcher.receive()
-    # assert reply["content"] == "reply"
-    # self.dispatcher.close(reply)
-    # self.worker.end()
-    # self.worker = None
-    # self.dispatcher.end()
-    # self.dispatcher = None
