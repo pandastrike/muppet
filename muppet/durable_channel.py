@@ -128,9 +128,13 @@ class DurableChannel:
     
     _message = {"content": message["content"]}
     if "requestId" in message and message["requestId"] != None:
+      _message["from"] = message["to"]
+      _message["to"] = message["from"]
       _message["requestId"] = message["requestId"]
       _message["responseId"] = message["id"]
     else:
+      _message["from"] = message["from"]
+      _message["to"] = message["to"]
       _message["requestId"] = message["id"]
 
     return _message
@@ -167,6 +171,10 @@ class DurableChannel:
     self.redis.hdel(
       self.name + ".messages", 
       message["responseId"]
+    )
+    self.redis.zrem(
+      message["to"] + ".pending", 
+      message["from"] + "::" + message["responseId"]
     )
 
   def end(self):

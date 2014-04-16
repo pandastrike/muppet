@@ -1,3 +1,4 @@
+import time
 from muppet.durable_channel import DurableChannel
 
 class TestDurableChannel:
@@ -22,7 +23,7 @@ class TestDurableChannel:
     # receive message
     message = self.worker.receive()
     assert message["content"] == "task"
-    self.worker.reply(message=message, response="reply")
+    self.worker.reply(message=message, response="reply", timeout=5000)
 
     # receive reply
     reply = self.dispatcher.receive()
@@ -43,3 +44,6 @@ class TestDurableChannel:
     # receive message
     message = self.worker.receive()
     assert message["content"] == "task"
+    
+    # wait for timeout
+    time.sleep(2)
