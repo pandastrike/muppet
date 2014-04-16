@@ -8,6 +8,9 @@ import redis
 class DurableChannel:
 
   def __init__(self, name, options, timeoutCallback=None):
+    if name == None or len(name) == 0:
+      raise ValueError("Durable channels cannot be anonymous")
+
     self.name = name
     self.stopping = False
     self.redis = redis.StrictRedis(host=options["redis"]["host"], port=options["redis"]["port"], db=0)
@@ -17,6 +20,7 @@ class DurableChannel:
       self.timeoutMonitorFrequency = options["timeoutMonitorFrequency"]
     
     self.timeoutMonitorThread = threading.Thread(target=self.__monitorTimeouts)
+    self.timeoutMonitorThread.daemon = True
     self.timeoutMonitorThread.start()
 
   def __get_current_time(self):
