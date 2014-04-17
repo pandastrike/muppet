@@ -24,7 +24,7 @@ class RemoteChannel:
           break
         elif not message["data"].endswith("__kill__") :
           data = json.loads(message["data"])
-          self.callback(data["content"])
+          self.callback(message["channel"], data["content"])
 
   def send(self, content):
     message = {"content": content}

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 import os
-import sys
+
+try:
+  from setuptools import setup
+except:
+  from distutils.core import setup
 
 from muppet import __version__
 
@@ -14,10 +18,10 @@ setup(
   description="Durable messaging for distributed processing",
   long_description=long_description,
   url="https://github.com/pandastrike/muppet",
-  author="Daniel Yoder",
-  author_email="daniel.yoder@gmail.com",
-  maintainer="Mahesh Yellai",
-  maintainer_email="mahesh.yellai@gmail.com",
+  author="Daniel Yoder, Mahesh Yellai",
+  maintainer="Daniel Yoder, Mahesh Yellai",
+  author_email="daniel.yoder@gmail.com, mahesh.yellai@gmail.com",
+  maintainer_email="daniel.yoder@gmail.com, mahesh.yellai@gmail.com",
   keywords=["Durable messaging", "Distributed processing", "Redis"],
   license="MIT",
   packages=["muppet"],

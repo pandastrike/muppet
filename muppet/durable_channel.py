@@ -60,16 +60,20 @@ class DurableChannel:
           expiredMessageTokens[0] + ".messages", 
           expiredMessageTokens[1]
         )
+
+        self.redis.zrem(
+          self.name + ".pending", 
+          expiredMessageId
+        )
+
+        if expiredMessage == None:
+          continue
+
         expiredMessage = json.loads(expiredMessage)
         
         self.redis.hdel(
           expiredMessageTokens[0] + ".messages", 
           expiredMessageTokens[1]
-        )
-        
-        self.redis.zrem(
-          self.name + ".pending", 
-          expiredMessageId
         )
 
         if self.timeoutCallback != None:
@@ -84,21 +88,24 @@ class DurableChannel:
       to=to, 
       timeout=timeout
     )    
+
     self.redis.hset(
       to + ".messages", 
       message["id"], 
       json.dumps(message)
     )
-    self.redis.lpush(
-      to + ".queue", 
-      message["id"]
-    )
+
     if timeout != None:
       self.redis.zadd(
         self.name + ".pending", 
         (self.__get_current_time() + timeout), 
         to + "::" + message["id"]
       )
+
+    self.redis.lpush(
+      to + ".queue", 
+      message["id"]
+    )
 
   def receive(self):
     message = None
@@ -151,21 +158,24 @@ class DurableChannel:
       request_id=message["requestId"], 
       timeout=timeout
     )
+
     self.redis.hset(
       request["from"] + ".messages", 
       message["id"], 
       json.dumps(message)
     )
-    self.redis.lpush(
-      request["from"] + ".queue", 
-      message["id"]
-    )
+
     if timeout != None:
       self.redis.zadd(
         self.name + ".pending", 
         (self.__get_current_time() + timeout), 
         request["from"] + "::" + message["id"]
       )
+
+    self.redis.lpush(
+      request["from"] + ".queue", 
+      message["id"]
+    )
 
   def close(self, message):
     self.redis.hdel(

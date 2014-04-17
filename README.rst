@@ -2,21 +2,22 @@
 muppet
 ******
 
-muppet is Python implementation of `mutual`_. muppet provides RemoteChannel for simple messaging across process or machine boundaries and DurableChannel for durable messaging across process or machine boundaries. Both RemoteChannel and DurableChannel use Redis for message store.
+`muppet`_ is Python implementation of `mutual`_. muppet provides RemoteChannel for simple messaging across process or machine boundaries and DurableChannel for durable messaging across process or machine boundaries. Both RemoteChannel and DurableChannel use Redis for message store.
 
+.. _muppet: http://github.com/pandastrike/muppet
 .. _mutual: http://github.com/pandastrike/mutual
 
 
 Remote Channel
 --------------
-Remote Channel follows pub-sub model with all messages broadcast to all subscribers.
+Remote Channel follows a pub-sub model where every message sent on a channel is broadcast to all the subscribers listening on the channel.
 
 Usage:
 ^^^^^^
 
 .. code-block:: python
 
-   from muppet.remote_channel import RemoteChannel
+   from muppet import RemoteChannel
 
    # define the callback to receive messages
    def callback(message):
@@ -40,12 +41,14 @@ Usage:
 
 Durable Channel
 ---------------
-Durable Channel follows a queue model, with the message sent to any one of the receivers listening. Using DurableChannel, senders can send messages with a timeout, so they are informed when a message is not replied to within the specified timeout. Every message is guaranteed to be replied to within a specified timeout, if not, sender is informed via a callback.
+Durable Channel follows a queue model, where a message sent on a channel is picked up by any one of the receivers listening on the channel. Using DurableChannel, senders can send messages with a timeout, so they are informed when a message is not replied to within the specified timeout. Every message is guaranteed to be replied to within a specified timeout, if not, sender is informed via a callback.
 
 Usage:
 ^^^^^^
 
 .. code-block:: python
+
+   from muppet import DurableChannel
 
    def timeout_callback(message):
      print "timed out:", message

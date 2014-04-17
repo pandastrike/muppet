@@ -1,3 +1,4 @@
+import time
 from muppet.remote_channel import RemoteChannel
 
 class TestRemoteChannel:
@@ -6,9 +7,12 @@ class TestRemoteChannel:
     self.redis_options = {"redis": {"host": "127.0.0.1", "port": 6379}}
     self.sender = None
     self.receiver = None
+    self.calledbackChannel = ""
+    self.calledbackMessage = ""
 
-  def __callback(self, message):
-    assert message == "hello"
+  def __callback(self, channel, message):
+    self.calledbackChannel = channel
+    self.calledbackMessage = message
     self.receiver.end()
 
   def test_messaging(self):
@@ -21,3 +25,10 @@ class TestRemoteChannel:
     # send message
     self.sender.send("hello")
     self.sender.end()
+
+    # wait for timeout
+    time.sleep(2)
+
+    # assert to check we received the message
+    assert self.calledbackChannel == "greeting"
+    assert self.calledbackMessage == "hello"

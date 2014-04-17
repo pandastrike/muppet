@@ -7,9 +7,10 @@ class TestDurableChannel:
     self.redis_options = {"redis": {"host": "127.0.0.1", "port": 6379}}
     self.dispatcher = None
     self.worker = None
+    self.calledbackMessage = None
 
   def __timeout_callback(self, message):
-    assert message["content"] == "task"
+    self.calledbackMessage = message
     self.worker.end()
     self.dispatcher.end()
 
@@ -47,3 +48,6 @@ class TestDurableChannel:
     
     # wait for timeout
     time.sleep(2)
+
+    # assert to check message timed out 
+    assert self.calledbackMessage["content"] == "task"
