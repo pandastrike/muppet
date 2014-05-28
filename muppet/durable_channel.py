@@ -151,6 +151,10 @@ class DurableChannel:
       self.name + ".messages", 
       message["requestId"]
     )
+    if request == None:
+      # its possible that this is a reply to a message that already timed out
+      return
+
     request = json.loads(request)
     message = self.__package(
       content=response, 
